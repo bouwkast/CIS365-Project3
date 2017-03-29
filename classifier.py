@@ -2,14 +2,16 @@
 
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
+
+# TODO mess with some more values
 datagen = ImageDataGenerator(
-        rotation_range=40,
+        # rotation_range=40,
         width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
+        # height_shift_range=0.2,
+        # shear_range=1,
+        zoom_range=[.65, 1],
         horizontal_flip=True,
-        fill_mode='nearest')
+        fill_mode='constant')
 
 # CHANGE DIRECTORY AND IMAGE FOR TESTING BEST METHODS
 img = load_img('17_flowers/train/bluebell/image_0251.jpg')  # this is a PIL image
