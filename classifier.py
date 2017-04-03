@@ -1,7 +1,7 @@
 # #  From - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 #
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
-#
+
 #
 # # TODO mess with some more values
 # datagen = ImageDataGenerator(
@@ -15,7 +15,7 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 #
 # # CHANGE DIRECTORY AND IMAGE FOR TESTING BEST METHODS
 # img = load_img('17_flowers/train/bluebell/image_0251.jpg')  # this is a PIL image
-# x = img_to_array(img)  # this is a Numpy array with shape (3, 150, 150)
+# x = img_to_array(img)
 # x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 150, 150)
 #
 # # the .flow() command below generates batches of randomly transformed images
@@ -32,7 +32,7 @@ import datetime
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 from keras.utils import np_utils
 now = datetime.datetime.now()
 tensorboard = TensorBoard(log_dir='./logs/' + now.strftime('%Y.%m.%d %H.%M'))
@@ -94,8 +94,10 @@ validation_generator = test_datagen.flow_from_directory(
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
-        epochs=2,
+        epochs=1,
         validation_data=validation_generator,
-        verbose=1,
-        validation_steps=800 // batch_size)
-model.save_weights('first_try.h5')  # always save your weights after training or during training
+        validation_steps=800 // batch_size,
+        callbacks=[ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
+
+# TODO - remove this save_weights, ModelCheckpoint will save the actual model
+# model.save_weights('first_try.h5')  # always save your weights after training or during training
