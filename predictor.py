@@ -14,7 +14,7 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import TensorBoard, ModelCheckpoint
 import numpy as np
 
-model = load_model('model.h5')
+model = load_model('model_70percent.h5')
 model.summary()
 
 
@@ -35,6 +35,12 @@ names = {'buttercup': 1, 'tigerlily': 14, 'bluebell': 0, 'crocus': 4, 'daisy': 6
 
 best = np.argmax(prediction)
 print(best)
+predicted_flower = 'ERROR'
+for key in names:
+    if names[key] == best:
+        predicted_flower = key
+
+print(predicted_flower)
 
 # prediction = model.predict(validation_generator, batch_size=1, verbose=1)
 

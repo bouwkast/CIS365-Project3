@@ -72,12 +72,12 @@ validation_generator = test_datagen.flow_from_directory(
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
-        epochs=2,
+        epochs=50,
         validation_data=validation_generator,
         validation_steps=800 // batch_size,
-        callbacks=[ModelCheckpoint('model.h5', verbose=2, save_best_only=True)])
+        callbacks=[ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
 
-model.summary()
+model.summary()  # print out summary of model for testing purposes
 
 # TODO - remove this save_weights, ModelCheckpoint will save the actual model
 # model.save_weights('first_try.h5')  # always save your weights after training or during training
