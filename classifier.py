@@ -14,7 +14,8 @@ now = datetime.datetime.now()
 tensorboard = TensorBoard(log_dir='./logs/' + now.strftime('%Y.%m.%d %H.%M'))
 # add our layers
 model = Sequential()
-model.add(Conv2D(32, (3, 3), input_shape=(150, 150, 3)))
+model.add(Conv2D(32, (3, 3), border_mode='valid', input_shape=(150, 150, 3)))
+
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -66,14 +67,15 @@ validation_generator = test_datagen.flow_from_directory(
         target_size=(150, 150),
         batch_size=batch_size,
         class_mode='categorical')
+# print(validation_generator.class_indices)
 
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
-        epochs=1,
+        epochs=2,
         validation_data=validation_generator,
         validation_steps=800 // batch_size,
-        callbacks=[ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
+        callbacks=[ModelCheckpoint('model.h5', verbose=2, save_best_only=True)])
 
 # TODO - remove this save_weights, ModelCheckpoint will save the actual model
 # model.save_weights('first_try.h5')  # always save your weights after training or during training
