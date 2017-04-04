@@ -12,13 +12,19 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import TensorBoard, ModelCheckpoint
-
+import numpy as np
 
 model = load_model('model.h5')
+model.summary()
 
-img = load_img('17_flowers/train/bluebell/image_0251.jpg')  # this is a PIL image
-x = img_to_array(img)
+img = load_img('preview/bluebell_test_0_389.jpeg')  # this is a PIL image
+x = np.array(img)
+# x = img_to_array(img)
+print(x.shape)
 x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 150, 150)
+
+
+
 
 
 
