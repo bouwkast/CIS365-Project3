@@ -17,11 +17,6 @@ import numpy as np
 model = load_model('model.h5')
 model.summary()
 
-img = load_img('preview/bluebell_test_0_426.jpeg')  # this is a PIL image
-x = np.array(img)
-# x = img_to_array(img)
-print(x.shape)
-x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 150, 150)
 
 predict_datagen = ImageDataGenerator(rescale=1./255)
 

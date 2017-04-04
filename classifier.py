@@ -77,5 +77,7 @@ model.fit_generator(
         validation_steps=800 // batch_size,
         callbacks=[ModelCheckpoint('model.h5', verbose=2, save_best_only=True)])
 
+model.summary()
+
 # TODO - remove this save_weights, ModelCheckpoint will save the actual model
 # model.save_weights('first_try.h5')  # always save your weights after training or during training
