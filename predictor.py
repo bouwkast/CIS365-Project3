@@ -14,7 +14,7 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import TensorBoard, ModelCheckpoint
 import numpy as np
 
-model = load_model('model_70percent.h5')
+model = load_model('model.h5')
 model.summary()
 
 
