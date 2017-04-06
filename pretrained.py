@@ -95,9 +95,11 @@ test_datagen = ImageDataGenerator(rescale=1./255)
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
-        epochs=5,
+        epochs=20,
         validation_data=validation_generator,
         validation_steps=800 // batch_size,
         callbacks=[ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
 
 print(model.summary())
+
+# this is a comment

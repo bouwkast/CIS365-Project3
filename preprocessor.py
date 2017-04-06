@@ -35,3 +35,6 @@ for batch in datagen.flow(x, batch_size=1,
     i += 1
     if i > 20:
         break  # otherwise the generator would loop indefinitely
+
+
+# this is a comment

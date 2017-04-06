@@ -86,3 +86,5 @@ model.summary()  # print out summary of model for testing purposes
 
 # TODO - remove this save_weights, ModelCheckpoint will save the actual model
 # model.save_weights('first_try.h5')  # always save your weights after training or during training
+
+#this is a comment

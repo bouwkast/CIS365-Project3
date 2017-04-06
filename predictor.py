@@ -14,15 +14,32 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import TensorBoard, ModelCheckpoint
 import numpy as np
 
-model = load_model('model.h5')
-model.summary()
 
+def create_percentages(probabilities):
+    """
+    Take a numpy array containing the probabilities of some other input
+    data for what appropriate flower class it belongs to.
+    :param probabilities: a numpy array of float values which are probabilities
+    :return: a numpy array of float values as percentages
+    """
+    sum = np.sum(probabilities)
+    percentages = []  # standard python list to contain the percentages
+
+    # to calculate the percentage take each independent probability and divide it by the sum of all
+    for prob in np.nditer(probabilities):
+        percentages.append((prob / sum) * 100)
+
+    return percentages
+
+
+model = load_model('model.h5')
+dim = 299
 
 predict_datagen = ImageDataGenerator(rescale=1./255)
 
 predict_generator = predict_datagen.flow_from_directory(
         'predict',
-        target_size=(150, 150),
+        target_size=(dim, dim),
         batch_size=1,
         class_mode=None)
 
@@ -40,8 +57,11 @@ for key in names:
     if names[key] == best:
         predicted_flower = key
 
-print(predicted_flower)
+percentages = create_percentages(prediction)
+print(predicted_flower, percentages[best])
 
 # prediction = model.predict(validation_generator, batch_size=1, verbose=1)
 
-print(prediction)
+print(percentages)
+
+print()
