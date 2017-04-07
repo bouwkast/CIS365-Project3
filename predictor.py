@@ -1,11 +1,3 @@
-"""
-
-Filename: predictor.py
-Author: Steven
-Date Last Modified: 4/3/2017
-Email: bouwkast@mail.gvsu.edu
-
-"""
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from keras.models import Sequential
@@ -15,6 +7,7 @@ from keras.callbacks import TensorBoard, ModelCheckpoint
 import numpy as np
 
 
+# TODO - cleanup variable names
 def create_percentages(probabilities):
     """
     Take a numpy array containing the probabilities of some other input
@@ -32,36 +25,97 @@ def create_percentages(probabilities):
     return percentages
 
 
-model = load_model('model.h5')
+def get_name(names, location):
+    for name in names:
+        if names[name] == location:
+            return name
+    return 'invalid location passed to get_name'
+
+
+def top_five(percentages, names):
+    five = []
+    loc = 0
+    for percent in percentages:
+        if len(five) > 0:
+            for value in five:
+                if percent > value[0]:
+                    five.remove(value)
+                    five.append((percent, get_name(names, loc)))
+                    break
+                elif len(five) < 5:
+                    five.append((percent, get_name(names, loc)))
+                    break
+
+        else:
+            five.append((percent, get_name(names, loc)))
+        loc += 1
+    five.sort(key=lambda flow_tup: flow_tup[0], reverse=True)
+    return five
+
+
+def format_top_five(five):
+    result = '\n***** Top Five Predictions *****\n\n'
+    result += 'Confidence\t\tFlower Name\n'
+    result += '==================================\n\n'
+    for pair in five:
+        result += str(round(pair[0], 2)) + '%' + '\t\t\t' + pair[1] + '\n'
+    return result
+
+
+# TODO - attempt to keep model loaded in memory and run multiple predictions sequentially
+
+# TODO - comments for the above functions
+
+# TODO - potentially add ability to choose what model to predict on (ie. pretrained or scratch)
+
+# TODO - cleanup prediction code - ie(split into functions)
+
+
+# TODO - do we put this load_model() in a while loop to keep it loaded the whole time??
+model = load_model('model_98percent.h5')
 dim = 299
 
-predict_datagen = ImageDataGenerator(rescale=1./255)
+# TODO - to keep model loaded we might have to change this - not sure
+predict_datagen = ImageDataGenerator(rescale=1. / 255)
 
 predict_generator = predict_datagen.flow_from_directory(
-        'predict',
-        target_size=(dim, dim),
-        batch_size=1,
-        class_mode=None)
-
+    'predict',
+    target_size=(dim, dim),
+    batch_size=1,
+    class_mode=None)
 
 prediction = model.predict_generator(predict_generator, 1)
 
-names = {'buttercup': 1, 'tigerlily': 14, 'bluebell': 0, 'crocus': 4, 'daisy': 6, 'snowdrop': 12, 'lily_valley': 10, 'tulip': 15, 'daffodil': 5, 'iris': 9, 'pansy': 11, 'colts_foot': 2, 'fritillary': 8, 'dandelion': 7, 'cowslip': 3, 'windflower': 16, 'sunflower': 13}
+#  names_102 is for the model with 102 classes
+names_102 = {'spring_crocus': 84, 'gazania': 40, 'artichoke': 2, 'desert_rose': 32, 'mallow': 56, 'canna_lily': 20,
+             'toad_lily': 92, 'wallflower': 96, 'balloon_flower': 5, 'thorn_apple': 90, 'lotus': 53,
+             'prince_of_wales_feathers': 75, 'bird_of_paradise': 9, 'cape_flower': 22, 'moon_orchid': 61,
+             'wild_pansy': 99,
+             'mexican_aster': 58, 'foxglove': 35, 'alpine_sea_holly': 0, 'trumpet_creeper': 95, 'corn_poppy': 29,
+             'magnolia': 55, 'rose': 78, 'bougainvillea': 15, 'passion_flower': 66, 'californian_poppy': 18,
+             'hard_leaved_pocket_orchid': 47, 'pink_primrose': 71, 'red_ginger': 77, 'blanket_flower': 13,
+             'ruby_lipped_cattleya': 79, 'sword_lily': 89, 'king_protea': 51, 'ball_moss': 4, 'pink_yellow_dahlia': 72,
+             'barbeton_daisy': 6, 'lenten_rose': 52, 'morning_glory': 62, 'buttercup': 17, 'mexican_petunia': 59,
+             'cautleya_spicata': 24, 'water_lily': 97, 'blackberry_lily': 12, 'poinsettia': 73, 'fire_lily': 34,
+             'geranium': 41, 'tiger_lily': 91, 'clematis': 25, 'osteospermum': 64, 'sweet_william': 88,
+             'globe_thistle': 44,
+             'anthurium': 1, 'pelargonium': 67, 'bromelia': 16, 'purple_coneflower': 76, 'hibiscus': 48,
+             'peruvian_lily': 68, 'garden_phlox': 38, 'hippeastrum': 49, 'globe_flower': 43, 'orange_dahlia': 63,
+             'colts_foot': 26, 'great_masterwort': 46, 'petunia': 69, 'carnation': 23, 'tree_mallow': 93,
+             'grape_hyacinth': 45, 'watercress': 98, 'gaura': 39, 'windflower': 100, 'canterbury_bells': 21,
+             'siam_tulip': 80, 'fritillary': 37, 'english_marigold': 33, 'sweet_pea': 87, 'sunflower': 86,
+             'common_dandelion': 28, 'monkshood': 60, 'snapdragon': 82, 'camellia': 19, 'frangipani': 36,
+             'bearded_iris': 7,
+             'columbine': 27, 'yello_iris': 101, 'japanese_anemone': 50, 'giant_white_arum_lily': 42, 'cyclamen': 30,
+             'bee_balm': 8, 'bolero_deep_blue': 14, 'pincushion_flower': 70, 'bishop_of_llandaff': 10, 'tree_poppy': 94,
+             'black_eyed_susan': 11, 'primula': 74, 'oxeye_daisy': 65, 'love_in_the_mist': 54, 'spear_thistle': 83,
+             'silverbush': 81, 'daffodil': 31, 'marigold': 57, 'stemless_gentian': 85, 'azalea': 3}
 
-#prediction should be numpy array of probabilites, find highest, record index
-
-best = np.argmax(prediction)
-print(best)
-predicted_flower = 'ERROR'
-for key in names:
-    if names[key] == best:
-        predicted_flower = key
+names = {'buttercup': 1, 'tigerlily': 14, 'bluebell': 0, 'crocus': 4, 'daisy': 6, 'snowdrop': 12, 'lily_valley': 10,
+         'tulip': 15, 'daffodil': 5, 'iris': 9, 'pansy': 11, 'colts_foot': 2, 'fritillary': 8, 'dandelion': 7,
+         'cowslip': 3, 'windflower': 16, 'sunflower': 13}
 
 percentages = create_percentages(prediction)
-print(predicted_flower, percentages[best])
 
-# prediction = model.predict(validation_generator, batch_size=1, verbose=1)
-
-print(percentages)
-
-print()
+# TODO make sure to select the correct names if using the 102 class model
+print(format_top_five(top_five(percentages, names)))

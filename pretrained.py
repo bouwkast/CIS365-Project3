@@ -1,5 +1,5 @@
 from keras.applications.inception_v3 import InceptionV3
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.preprocessing import image
 from keras.models import Model
 from keras.layers import Dense, GlobalAveragePooling2D
@@ -8,15 +8,20 @@ from keras import backend as K
 # create the base pre-trained model
 from keras.preprocessing.image import ImageDataGenerator
 
+# TODO - clean up comments and make more that are relevant
+
 base_model = InceptionV3(weights='imagenet', include_top=False)
 batch_size = 16
-dim = 299
+dim = 299  # InceptionV3 is trained on 299x299 images
+
 # add a global spatial average pooling layer
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
 # let's add a fully-connected layer
 x = Dense(1024, activation='relu')(x)
-# and a logistic layer -- let's say we have 200 classes
+
+# TODO - pick whichever is correct for the number of classes
+# predictions = Dense(102, activation='softmax')(x)
 predictions = Dense(17, activation='softmax')(x)
 
 # this is the model we will train
@@ -38,6 +43,7 @@ train_datagen = ImageDataGenerator(
 
 # this is the augmentation configuration we will use for testing:
 # only rescaling
+#
 test_datagen = ImageDataGenerator(rescale=1./255)
 # train the model on the new data for a few epochs
 train_generator = train_datagen.flow_from_directory(
@@ -54,6 +60,7 @@ validation_generator = test_datagen.flow_from_directory(
         class_mode='categorical')
 print(validation_generator.class_indices)
 
+# TODO - maybe mess around with how many epochs here
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
@@ -70,6 +77,7 @@ model.fit_generator(
 for i, layer in enumerate(base_model.layers):
    print(i, layer.name)
 
+# TODO - maybe mess around with which layers we freeze/train
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 172 layers and unfreeze the rest:
 for layer in model.layers[:172]:
@@ -79,6 +87,7 @@ for layer in model.layers[172:]:
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
+# TODO - could try some other optimizer - I like rmsprop - can also change the parameters (not loss or metric)
 from keras.optimizers import SGD
 model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -92,14 +101,16 @@ test_datagen = ImageDataGenerator(rescale=1./255)
 # subfolers of 'data/train', and indefinitely generate
 # batches of augmented image data
 
+# TODO - change epochs and patience to your leisure
+# TODO - can also mess with # of steps and the overal batch_size
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
-        epochs=20,
+        epochs=50,
         validation_data=validation_generator,
         validation_steps=800 // batch_size,
-        callbacks=[ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
+        callbacks=[EarlyStopping(patience=50), ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
 
-print(model.summary())
+# print(model.summary())
 
 # this is a comment
