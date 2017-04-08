@@ -8,6 +8,9 @@ import numpy as np
 
 
 # TODO - cleanup variable names
+from scipy.misc import imresize
+
+
 def create_percentages(probabilities):
     """
     Take a numpy array containing the probabilities of some other input
@@ -72,8 +75,35 @@ def format_top_five(five):
 
 
 # TODO - do we put this load_model() in a while loop to keep it loaded the whole time??
-model = load_model('model_98percent.h5')
-dim = 299
+model = load_model('model_70percent.h5')
+dim = 150
+
+
+img = load_img('predict/to_predict/image_1827263.jpg')
+
+print(img_to_array(img).shape)
+
+x = img_to_array(img)
+
+x = imresize(x, (dim, dim, 3))  # resize it to the correct dimensions
+
+
+#  TODO - need to reshape the image to have the following dimensions (None, dim, dim, 3)
+
+
+
+x = x.reshape((1,) + x.shape)
+
+# x = x.reshape((1, ) + (dim, dim, 3))
+
+predict_d = ImageDataGenerator(rescale=1. / 255)
+
+batch_size = 1
+
+#  TODO - the dimensions get changed here too - is this where we can get (None, dim, dim, 3)???
+for batch in predict_d.flow(x, batch_size=1):
+    x = batch  # this runs in an infinite loop - need to stop it
+    break
 
 # TODO - to keep model loaded we might have to change this - not sure
 predict_datagen = ImageDataGenerator(rescale=1. / 255)
@@ -84,7 +114,8 @@ predict_generator = predict_datagen.flow_from_directory(
     batch_size=1,
     class_mode=None)
 
-prediction = model.predict_generator(predict_generator, 1)
+# prediction = model.predict_generator(predict_generator, 1)
+prediction = model.predict(x, 1)
 
 #  names_102 is for the model with 102 classes
 names_102 = {'spring_crocus': 84, 'gazania': 40, 'artichoke': 2, 'desert_rose': 32, 'mallow': 56, 'canna_lily': 20,
