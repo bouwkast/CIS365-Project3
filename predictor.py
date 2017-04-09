@@ -115,7 +115,7 @@ def predict(model_tuple):
     # TODO - dim should be 299 - need to update all models to be this size
     classes = model_tuple[1]
     model = model_tuple[0]
-    dim = 150  # image height and width dimensions
+    dim = 299  # image height and width dimensions
     default_path = 'predict/to_predict/'
     print('Please enter the full name of the image to predict.\nNote: must be in directory predict/to_predict/\n')
     image_name = input()  # grab user input for the path of image to predict
@@ -142,7 +142,7 @@ def predict(model_tuple):
 
 
 
-model = init_model()
+model = init_model(to_load='102_model3.h5', is_17=False)
 
 while True:
     predict(model)

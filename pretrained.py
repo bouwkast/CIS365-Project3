@@ -11,7 +11,7 @@ from keras.preprocessing.image import ImageDataGenerator
 # TODO - clean up comments and make more that are relevant
 
 base_model = InceptionV3(weights='imagenet', include_top=False)
-batch_size = 16
+batch_size = 32
 dim = 299  # InceptionV3 is trained on 299x299 images
 
 # add a global spatial average pooling layer
@@ -21,8 +21,8 @@ x = GlobalAveragePooling2D()(x)
 x = Dense(1024, activation='relu')(x)
 
 # TODO - pick whichever is correct for the number of classes
-# predictions = Dense(102, activation='softmax')(x)
-predictions = Dense(17, activation='softmax')(x)
+predictions = Dense(102, activation='softmax')(x)
+# predictions = Dense(17, activation='softmax')(x)
 
 # this is the model we will train
 model = Model(input=base_model.input, output=predictions)
@@ -37,7 +37,7 @@ model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['ac
 
 train_datagen = ImageDataGenerator(
         rescale=1./255,
-        zoom_range=[.65, 1],
+        # zoom_range=[.65, 1],
         horizontal_flip=True,
         fill_mode='constant')
 
@@ -47,14 +47,14 @@ train_datagen = ImageDataGenerator(
 test_datagen = ImageDataGenerator(rescale=1./255)
 # train the model on the new data for a few epochs
 train_generator = train_datagen.flow_from_directory(
-        '17_flowers/train',  # this is the target directory
+        '102_flowers/train',  # this is the target directory
         target_size=(dim, dim),  # all images will be resized to 150x150
         batch_size=batch_size,
         class_mode='categorical')  # since we use binary_crossentropy loss, we need binary labels
 
 # this is a similar generator, for validation data
 validation_generator = test_datagen.flow_from_directory(
-        '17_flowers/validation',
+        '102_flowers/validation',
         target_size=(dim, dim),
         batch_size=batch_size,
         class_mode='categorical')
@@ -106,10 +106,10 @@ test_datagen = ImageDataGenerator(rescale=1./255)
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000 // batch_size,
-        epochs=50,
+        epochs=200,
         validation_data=validation_generator,
         validation_steps=800 // batch_size,
-        callbacks=[EarlyStopping(patience=50), ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])
+        callbacks=[EarlyStopping(patience=50), ModelCheckpoint('102_model3.h5', verbose=1, save_best_only=True)])
 
 # print(model.summary())
 
