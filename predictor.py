@@ -1,14 +1,8 @@
 from keras.models import load_model
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D
-from keras.layers import Activation, Dropout, Flatten, Dense
-from keras.callbacks import TensorBoard, ModelCheckpoint
+from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 import numpy as np
-
-
-# TODO - cleanup variable names
 from scipy.misc import imresize
+
 
 #  names_102 is for the model with 102 classes
 names_102 = {'spring_crocus': 84, 'gazania': 40, 'artichoke': 2, 'desert_rose': 32, 'mallow': 56, 'canna_lily': 20,
@@ -35,9 +29,38 @@ names_102 = {'spring_crocus': 84, 'gazania': 40, 'artichoke': 2, 'desert_rose': 
              'black_eyed_susan': 11, 'primula': 74, 'oxeye_daisy': 65, 'love_in_the_mist': 54, 'spear_thistle': 83,
              'silverbush': 81, 'daffodil': 31, 'marigold': 57, 'stemless_gentian': 85, 'azalea': 3}
 
+#  names is for the 17 classes
 names = {'buttercup': 1, 'tigerlily': 14, 'bluebell': 0, 'crocus': 4, 'daisy': 6, 'snowdrop': 12, 'lily_valley': 10,
          'tulip': 15, 'daffodil': 5, 'iris': 9, 'pansy': 11, 'colts_foot': 2, 'fritillary': 8, 'dandelion': 7,
          'cowslip': 3, 'windflower': 16, 'sunflower': 13}
+
+
+def ask_for_model():
+    """
+    Ask the user for what model that want to load (filename) and what dataset:
+    either 17 or 102
+    :return: a tuple containing (filename, dataset)
+        filename - string
+        dataset - int
+    """
+    valid_files = ['102_model3.h5', 'model_98percent.h5', 'model_70percent.h5']
+    filename = input('Please enter the model that you want to load:\n'
+                     'Available models are:\n'
+                     '\t102_model3.h5\n'
+                     '\tmodel_98percent.h5\n'
+                     '\tmodel_70percent.h5\n'
+                     'Model to load:\t')
+    if filename not in valid_files:
+        print('Valid files are ', valid_files)
+        print('Invalid filename entered. Exiting.')
+        exit(1)
+    dataset = input('Is the classifier for the 102 flower dataset? (y/n)\n')
+    if dataset == 'y':
+        dataset = False  # question asks if the classifier with 102 is in its name - if it is it isn't 17 classes
+    else:
+        dataset = True
+
+    return filename, dataset
 
 
 def create_percentages(probabilities):
@@ -58,6 +81,12 @@ def create_percentages(probabilities):
 
 
 def get_name(names, location):
+    """
+    Reads in the appropriate dictionary of classes and the location of the class we want
+    :param names: dictionary of classes and integer labels
+    :param location: integer label of flower
+    :return: the name of the flower that lines up with the passes location
+    """
     for name in names:
         if names[name] == location:
             return name
@@ -65,6 +94,12 @@ def get_name(names, location):
 
 
 def top_five(percentages, names):
+    """
+    Create the top 5 predictions for the given flower and convert them into percentages.
+    :param percentages: list of percentages that line up with class labels
+    :param names: is the dictionary that contains the class names and their integer labels
+    :return: a list of the top five percentages as tuples with (percent, name_of_flower)
+    """
     five = []
     loc = 0
     for percent in percentages:
@@ -86,6 +121,11 @@ def top_five(percentages, names):
 
 
 def format_top_five(five):
+    """
+    Format the top five predictions into a more pleasing look
+    :param five: list of top five percentages containing tuples (percentage, name)
+    :return: Formatted string of the predictions
+    """
     result = '\n***** Top Five Predictions *****\n\n'
     result += 'Confidence\t\tFlower Name\n'
     result += '==================================\n\n'
@@ -93,8 +133,14 @@ def format_top_five(five):
         result += str(round(pair[0], 2)) + '%' + '\t\t\t' + pair[1] + '\n'
     return result
 
-def init_model(to_load=None, is_17=True):
 
+def init_model(to_load=None, is_17=True):
+    """
+    Initialize the model to use for predicting
+    :param to_load: file name of the model to load
+    :param is_17: whether it is the 17 class model or the 102 class model
+    :return: a tuple containing the (model, classdict)
+    """
     if to_load is None:
         print('Loading default (InceptionV3) 17 flower classifier.\n\n')
         model = load_model('model_70percent.h5')  # TODO - update to pretrained as default
@@ -112,7 +158,17 @@ def init_model(to_load=None, is_17=True):
 
 
 def predict(model_tuple):
-    # TODO - dim should be 299 - need to update all models to be this size
+    """
+    Prompts the user for an image to predict.
+
+    Preprocess the image to regularize the RGB colors
+            resizes the image to dimensions of (1, dim, dim, 3)
+            where 1 is the batch size
+                dim is the HxW of the image
+                and 3 is how many color channels there are
+    :param model_tuple: is a tuple that contains (model, dictionary)
+    :return: The top five predictions for the given image
+    """
     classes = model_tuple[1]
     model = model_tuple[0]
     dim = 299  # image height and width dimensions
@@ -125,83 +181,21 @@ def predict(model_tuple):
     x = imresize(img_to_array(img), (dim, dim, 3))
     x = x.reshape((1,) + x.shape)  # get the proper # of dimensions - only predict 1 image at a time
 
-    predict_d = ImageDataGenerator(rescale=1. / 255)
-
-    batch_size = 1
-
-    #  TODO - the dimensions get changed here too - is this where we can get (None, dim, dim, 3)???
+    predict_d = ImageDataGenerator(rescale=1. / 255)  # regularize
+    # preprocess the image in an infinite loop
     for batch in predict_d.flow(x, batch_size=1):
         x = batch  # this runs in an infinite loop - need to stop it
         break
 
-    prediction = model.predict(x, 1)
+    prediction = model.predict(x, 1)  # predict what the classes should be
 
     percentages = create_percentages(prediction)
-    # TODO going to hardcode to use the 17 class dict need to change!!
     print(format_top_five(top_five(percentages, classes)))
 
 
-
-model = init_model(to_load='102_model3.h5', is_17=False)
+# grab user input for what model that we should load
+user_input = ask_for_model()
+model = init_model(to_load=user_input[0], is_17=user_input[1])
 
 while True:
     predict(model)
-
-# TODO - attempt to keep model loaded in memory and run multiple predictions sequentially
-
-# TODO - comments for the above functions
-
-# TODO - potentially add ability to choose what model to predict on (ie. pretrained or scratch)
-
-# TODO - cleanup prediction code - ie(split into functions)
-
-
-# TODO - do we put this load_model() in a while loop to keep it loaded the whole time??
-# model = load_model('model_70percent.h5')
-# dim = 150
-#
-#
-# img = load_img('predict/to_predict/image_1827263.jpg')
-#
-# print(img_to_array(img).shape)
-#
-# x = img_to_array(img)
-#
-# x = imresize(x, (dim, dim, 3))  # resize it to the correct dimensions
-#
-#
-# #  TODO - need to reshape the image to have the following dimensions (None, dim, dim, 3)
-#
-#
-#
-# x = x.reshape((1,) + x.shape)
-#
-# # x = x.reshape((1, ) + (dim, dim, 3))
-#
-# predict_d = ImageDataGenerator(rescale=1. / 255)
-#
-# batch_size = 1
-#
-# #  TODO - the dimensions get changed here too - is this where we can get (None, dim, dim, 3)???
-# for batch in predict_d.flow(x, batch_size=1):
-#     x = batch  # this runs in an infinite loop - need to stop it
-#     break
-#
-# # TODO - to keep model loaded we might have to change this - not sure
-# predict_datagen = ImageDataGenerator(rescale=1. / 255)
-#
-# predict_generator = predict_datagen.flow_from_directory(
-#     'predict',
-#     target_size=(dim, dim),
-#     batch_size=1,
-#     class_mode=None)
-#
-# # prediction = model.predict_generator(predict_generator, 1)
-# prediction = model.predict(x, 1)
-#
-#
-#
-# percentages = create_percentages(prediction)
-#
-#
-# print(format_top_five(top_five(percentages, names)))
