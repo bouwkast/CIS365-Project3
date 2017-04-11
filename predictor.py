@@ -1,3 +1,45 @@
+"""
+predictor.py can load in one of the available models and when passed an image will predict what type of flower it is
+
+Available models:
+    102_model3.h5
+            this model is a fine-tuned InceptionV3 network for the 102 flower dataset, achieved 95% accuracy
+    model_98percent.h5
+            this model is a fine-tuned InceptionV3 network for the 17 flower dataset, achieved 98% accuracy
+    model_70percent.h5
+            this model is a from scratch convolutional network for the 17 flower dataset, achived 70% accuracy
+                    this reduced accuracy is because 80 images per class simply isn't enough by itself
+                    but is still quite impressive
+
+Requirements to run:
+    keras, numpy, scipy - all must be latest version as of 4/11/2017
+    tensorflow OR tensorflow-gpu
+        tensorflow is the CPU-based version and works just fine for the predictor and is simple to install
+            pip install tensorflow
+        tensorflow-gpu is the GPU-based version and is much more difficult to setup, and is only beneficial
+            for training the model. (Not recommended if only desire is to run predictor.py)
+
+    All images to predict must be placed in the director structure 'predict/to_predict/' where predict is
+    in the same director as the models and this predictor.py file.
+
+To actually predict:
+    run: python predictor.py
+    May have to wait for tensorflow to load in
+    When prompted enter in the filename of the model to use for predictions
+    Answer y/n for whether it is the 102 flower dataset
+    Wait about 30s or more for the model to be loaded into memory
+
+    After the model is loaded it will prompt the user to enter the full name of the image (extension included)
+        to  predict
+    After entering the first image it will take about 5 seconds to output the top 5 predictions
+
+    All subsequent images 'should' be predicted nearly instantaneously.
+
+    To exit either to a Ctrl+c or type 'exit'
+
+"""
+
+
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 import numpy as np
