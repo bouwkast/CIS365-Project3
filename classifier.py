@@ -21,6 +21,10 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import ModelCheckpoint
 
 dim = 299
+num_training_img = 6182  # number of training images for 102 dataset
+# num_training_img = 1190 # number of training images for 17 dataset
+num_val_img = 2009  # number of validation images for 102 dataset
+# num_val_img = 170 # number of validation images for 17 dataset
 
 #  Convolutional Networks have specific architecture structures
 #  We took some of the layer sizes from Google's InceptionV3 architecture
@@ -85,10 +89,10 @@ print(validation_generator.class_indices)  # allows us to see where the model wi
 # this is due to a low quantity of data that we have available
 model.fit_generator(
         train_generator,  # passes the training data through this to transform it
-        steps_per_epoch=2000 // batch_size,  # how many times we are stepping for each epoch
+        steps_per_epoch=num_training_img // batch_size,  # how many times we are stepping for each epoch
         epochs=50,  # the from scratch model stopped improving after about 40 epochs
         validation_data=validation_generator,  # passes the validation data through this
-        validation_steps=800 // batch_size,
+        validation_steps=num_val_img // batch_size,
         callbacks=[ModelCheckpoint('model.h5', verbose=1, save_best_only=True)])  # save model when val_loss decreases
 
 model.summary()  # print out summary of model for testing purposes
