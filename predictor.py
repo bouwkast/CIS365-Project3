@@ -85,10 +85,10 @@ def ask_for_model():
         filename - string
         dataset - int
     """
-    valid_files = ['102_model3.h5', 'model_98percent.h5', 'model_70percent.h5']
+    valid_files = ['102_model.h5', 'model_98percent.h5', 'model_70percent.h5']
     filename = input('Please enter the model that you want to load:\n'
                      'Available models are:\n'
-                     '\t102_model3.h5\n'
+                     '\t102_model.h5\n'
                      '\tmodel_98percent.h5\n'
                      '\tmodel_70percent.h5\n'
                      'Model to load:\t')
@@ -96,13 +96,11 @@ def ask_for_model():
         print('Valid files are ', valid_files)
         print('Invalid filename entered. Exiting.')
         exit(1)
-    dataset = input('Is the classifier for the 102 flower dataset? (y/n)\n')
-    if dataset == 'y':
-        dataset = False  # question asks if the classifier with 102 is in its name - if it is it isn't 17 classes
-    else:
-        dataset = True
+    is_17 = True
+    if filename == '102_model.h5':
+        is_17 = False  # we only have one model that is for the 102 dataset
 
-    return filename, dataset
+    return filename, is_17
 
 
 def create_percentages(probabilities):
