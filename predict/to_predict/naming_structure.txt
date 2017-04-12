@@ -1,0 +1,28 @@
+
+List of 17 flower classifier flowers - http://www.robots.ox.ac.uk/~vgg/data/flowers/17/
+List of 102 flower classifier flowers - http://www.robots.ox.ac.uk/~vgg/data/flowers/102/categories.html
+
+For convenience there are some provided images of flowers to predict.
+Noted down is the model they work with, their name, and the result of the prediction.
+If you get different results (ie flower labeled as a hit and you get a miss) make sure that 
+	the correct model for the flower is being used. 
+
+File names are arranged like so:
+
+
+If they start with either 17 or 102:
+	This indicates what model they will work with
+If they don't start with a number:
+	This indicates that they work with both models
+	
+The next clump will be the full name of the flower.
+
+
+Near the end of the filename will be one of the following:
+	_hit
+	_miss
+	_top5
+	
+	hit means that it predicted the flower perfectly
+	miss means that the actual flower wasn't in any of the predictions
+	top4 means that the predicted flower wasn't number 1, but was in the top 5
