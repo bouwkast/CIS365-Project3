@@ -142,7 +142,9 @@ spread unequally between over 100 classes is actually not that many images per c
 On top of having few images there are also low quality images in the dataset along with
 images of flowers at the exact same angle.
 
-Typically people don't take a photo of a single image looking directly at it.
+Typically, people don't take a photo of a single flower while looking directly at it.
+ Usually, the flowers are taken at some angle and can have multiples of the same flower 
+ in them.
 
 Incorporating multiple images at different angles of varying group size of the flowers
 will be an easy way to vastly improve the model's accuracy and prediction capabilities.
